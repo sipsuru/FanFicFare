@@ -304,6 +304,10 @@ def get_update_data(inputio,
         for item in contentdom.getElementsByTagName("item"):
             href=relpath+item.getAttribute("href")
             if item.getAttribute("media-type").startswith("image/") and getsoups:
+                if oldcover and href == oldcover[3]:
+                    # don't include cover image, already handled by
+                    # oldcover code and can trip de-dup unintentionally.
+                    continue
                 img_url = href.replace("OEBPS/","")
                 # logger.debug("-->img img:%s"%img_url)
                 if img_url not in images:
