@@ -205,20 +205,6 @@ class FanFicFarePlugin(InterfaceAction):
                                            prefs,
                                            self.qaction.icon())
 
-    ## Kludgey, yes, but with the real configuration inside the
-    ## library now, how else would a user be able to change this
-    ## setting if it's crashing calibre?
-    def check_macmenuhack(self):
-        try:
-            return self.macmenuhack
-        except:
-            file_path = os.path.join(calibre_config_dir,
-                                     *("plugins/fanficfare_macmenuhack.txt".split('/')))
-            file_path = os.path.abspath(file_path)
-            logger.debug("Plugin %s macmenuhack file_path:%s"%(self.name,file_path))
-            self.macmenuhack = os.access(file_path, os.F_OK)
-            return self.macmenuhack
-
     accepts_drops = True
 
     def accept_enter_event(self, event, mime_data):
@@ -443,29 +429,24 @@ class FanFicFarePlugin(InterfaceAction):
             self.reject_list_action = self.create_menu_item_ex(self.menu, _('Reject Selected Books'),
                                                                unique_name='Reject Selected Books', image='rotate-right.png',
                                                                triggered=self.reject_list_urls)
-            # self.menu.addSeparator()
+            self.menu.addSeparator()
+            self.editpersonalini_action = self.create_menu_item_ex(self.menu, _('Edit personal.ini'),
+                                                                   image= 'config.png',
+                                                                   unique_name='Edit personal.ini',
+                                                                   shortcut_name=_('Edit personal.ini'),
+                                                                   triggered=self.editpersonalini)
 
-            # print("platform.system():%s"%platform.system())
-            # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
-            if not self.check_macmenuhack(): # not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
-                self.menu.addSeparator()
-                self.editpersonalini_action = self.create_menu_item_ex(self.menu, _('Edit personal.ini'),
-                                                                       image= 'config.png',
-                                                                       unique_name='Edit personal.ini',
-                                                                       shortcut_name=_('Edit personal.ini'),
-                                                                       triggered=self.editpersonalini)
+            self.config_action = self.create_menu_item_ex(self.menu, _('&Configure FanFicFare'),
+                                                          image= 'config.png',
+                                                          unique_name='Configure FanFicFare',
+                                                          shortcut_name=_('Configure FanFicFare'),
+                                                          triggered=do_user_config)
 
-                self.config_action = self.create_menu_item_ex(self.menu, _('&Configure FanFicFare'),
-                                                              image= 'config.png',
-                                                              unique_name='Configure FanFicFare',
-                                                              shortcut_name=_('Configure FanFicFare'),
-                                                              triggered=do_user_config)
-
-                self.about_action = self.create_menu_item_ex(self.menu, _('About FanFicFare'),
-                                                             image= 'images/icon.png',
-                                                             unique_name='About FanFicFare',
-                                                             shortcut_name=_('About FanFicFare'),
-                                                             triggered=self.about)
+            self.about_action = self.create_menu_item_ex(self.menu, _('About FanFicFare'),
+                                                         image= 'images/icon.png',
+                                                         unique_name='About FanFicFare',
+                                                         shortcut_name=_('About FanFicFare'),
+                                                         triggered=self.about)
 
             self.gui.keyboard.finalize()
 
