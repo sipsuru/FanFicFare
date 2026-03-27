@@ -1328,6 +1328,7 @@ class EditTextDialog(SizePersistedDialog):
                  icon=None, title=None, label=None, tooltip=None,
                  read_only=False,
                  rejectreasons=[],reasonslabel=None,
+                 accept_storyurls=False,
                  save_size_name='fff:edit text dialog',
                  ):
         SizePersistedDialog.__init__(self, parent, save_size_name)
@@ -1341,7 +1342,10 @@ class EditTextDialog(SizePersistedDialog):
             self.setWindowIcon(icon)
         self.l.addWidget(self.label)
 
-        self.textedit = QTextEdit(self)
+        if accept_storyurls:
+            self.textedit = DroppableQTextEdit(self)
+        else:
+            self.textedit = QTextEdit(self)
         self.textedit.setLineWrapMode(QTextEditNoWrap)
         self.textedit.setReadOnly(read_only)
         self.textedit.setText(text)

@@ -760,6 +760,7 @@ class BasicTab(QWidget):
                            tooltip=_("One URL per line:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"),
                            rejectreasons=rejecturllist.get_reject_reasons(),
                            reasonslabel=_('Add this reason to all URLs added:'),
+                           accept_storyurls=True,
                            save_size_name='fff:Add Reject List')
         d.exec_()
         if d.result() == d.Accepted:
