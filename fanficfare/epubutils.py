@@ -22,25 +22,25 @@ from io import BytesIO
 
 FONT_EXTS = ('ttf','otf','woff','woff2')
 
-# from io import StringIO
-# import cProfile, pstats
-# from pstats import SortKey
-# def do_cprofile(func):
-#     def profiled_func(*args, **kwargs):
-#         profile = cProfile.Profile()
-#         try:
-#             profile.enable()
-#             result = func(*args, **kwargs)
-#             profile.disable()
-#             return result
-#         finally:
-#             # profile.sort_stats(SortKey.CUMULATIVE).print_stats(20)
-#             s = StringIO()
-#             sortby = SortKey.CUMULATIVE
-#             ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
-#             ps.print_stats(20)
-#             print(s.getvalue())
-#     return profiled_func
+from io import StringIO
+import cProfile, pstats
+from pstats import SortKey
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(*args, **kwargs)
+            profile.disable()
+            return result
+        finally:
+            # profile.sort_stats(SortKey.CUMULATIVE).print_stats(20)
+            s = StringIO()
+            sortby = SortKey.CUMULATIVE
+            ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
+            ps.print_stats(20)
+            print(s.getvalue())
+    return profiled_func
 
 import bs4
 
@@ -407,7 +407,7 @@ def get_story_url_from_zip_html(inputio,_is_good_url=None):
                     return ahref
     return None
 
-# @do_cprofile
+@do_cprofile
 def reset_orig_chapters_epub(inputio,outfile):
     inputepub = ZipFile(inputio, 'r') # works equally well with a path or a blob
 
@@ -460,28 +460,50 @@ def reset_orig_chapters_epub(inputio,outfile):
             if re.match(r'.*/file\d+\.xhtml',zf):
                 #logger.debug("zf:%s"%zf)
                 data = data.decode('utf-8')
-                # should be re-reading an FFF file, single soup should
-                # be good enough and halve processing time.
-                soup = make_soup(data,dblsoup=False)
 
-                chapterorigtitle = None
-                tag = soup.find('meta',{'name':'chapterorigtitle'})
-                if tag:
-                    chapterorigtitle = tag['content']
+                ## For higher performance checking, don't need to
+                ## make_soup if not different
+                header = data[0:data.find("</head>")]
+                '''
+                <meta name="chapterorigtitle" content="8. Chapter 7" />
+                <meta name="chaptertoctitle" content="8. Chapter 7" />
+                <meta name="chaptertitle" content="8. (new) Chapter 7" />
+                '''
+                # logger.debug(header)
+                def get_meta_content(n,d):
+                    m = re.match(r'.*<meta( name="%s"| content="(?P<found>[^"]+))+".*'%n,d,re.DOTALL)
+                    if m:
+                        # logger.debug("%s -> %s"%(n,m.groupdict().get('found',None)))
+                        return m.groupdict().get('found',None)
 
-                # toctitle is separate for add_chapter_numbers:toconly users.
-                chaptertoctitle = None
-                tag = soup.find('meta',{'name':'chaptertoctitle'})
-                if tag:
-                    chaptertoctitle = tag['content']
-                else:
-                    chaptertoctitle = chapterorigtitle
+                chapterorigtitle = get_meta_content('chapterorigtitle',header)
+                chaptertoctitle =get_meta_content('chaptertoctitle',header)
+                chaptertitle = get_meta_content('chaptertitle',header)
 
-                chaptertitle = None
-                tag = soup.find('meta',{'name':'chaptertitle'})
-                if tag:
-                    chaptertitle = tag['content']
-                    chaptertitle_tag = tag
+                if not (chapterorigtitle and chaptertoctitle and chaptertitle \
+                            and chapterorigtitle == chaptertitle):
+                    # should be re-reading an FFF file, single soup should
+                    # be good enough and halve processing time.
+                    soup = make_soup(data,dblsoup=False)
+
+                    chapterorigtitle = None
+                    tag = soup.find('meta',{'name':'chapterorigtitle'})
+                    if tag:
+                        chapterorigtitle = tag['content']
+
+                    # toctitle is separate for add_chapter_numbers:toconly users.
+                    chaptertoctitle = None
+                    tag = soup.find('meta',{'name':'chaptertoctitle'})
+                    if tag:
+                        chaptertoctitle = tag['content']
+                    else:
+                        chaptertoctitle = chapterorigtitle
+
+                    chaptertitle = None
+                    tag = soup.find('meta',{'name':'chaptertitle'})
+                    if tag:
+                        chaptertitle = tag['content']
+                        chaptertitle_tag = tag
 
                 #logger.debug("chaptertitle:(%s) chapterorigtitle:(%s)"%(chaptertitle, chapterorigtitle))
                 if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
