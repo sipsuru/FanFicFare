@@ -606,6 +606,9 @@ class Configuration(ConfigParser):
 
         self.url_config_set = False
 
+        ## to improve performance, cache config values.
+        self.cached_config = {}
+
     def section_url_names(self,domain,section_url_f):
         ## domain is passed as a method to limit the damage if/when an
         ## adapter screws up _section_url
@@ -683,6 +686,10 @@ class Configuration(ConfigParser):
         return self.get_config(self.sectionslist,key,default)
 
     def get_config(self, sections, key, default=""):
+        try:
+            return self.cached_config[(tuple(sections),key)]
+        except KeyError as ke:
+            pass
         val = default
 
         val_files = []
@@ -727,6 +734,7 @@ class Configuration(ConfigParser):
             except (configparser.NoOptionError, configparser.NoSectionError) as e:
                 pass
 
+        self.cached_config[(tuple(sections),key)] = val
         return val
 
     # split and strip each.
