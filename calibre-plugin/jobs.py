@@ -114,15 +114,6 @@ def finish_download(donelist):
     # return the book list as the job result
     return book_list
 
-def do_download_site(site,book_list,options,merge,notification=lambda x,y:x):
-    # logger.info(_("Started job for %s")%site)
-    retval = []
-    for book in book_list:
-        # logger.info("%s"%book['url'])
-        retval.append(do_download_for_worker(book,options,merge,notification))
-        notification(10.0,book['url'])
-    return retval
-
 def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     '''
     Child job, to download story when run as a worker job
