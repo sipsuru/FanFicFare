@@ -27,7 +27,6 @@ import pprint
 import string
 import os, sys, platform
 
-
 version="4.56.1"
 os.environ['CURRENT_VERSION_ID']=version
 
@@ -50,6 +49,8 @@ from fanficfare.epubutils import (
 from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 from fanficfare.six.moves import configparser
 from fanficfare.six import text_type as unicode
+
+from fanficfare.fff_profile import do_cprofile
 
 def write_story(config, adapter, writeformat,
                 metaonly=False, nooutput=False,
@@ -346,6 +347,7 @@ def main(argv=None,
     dispatch(options, urls, passed_defaultsini, passed_personalini, warn, fail)
 
 # make rest a function and loop on it.
+@do_cprofile
 def do_download(arg,
                 options,
                 passed_defaultsini,

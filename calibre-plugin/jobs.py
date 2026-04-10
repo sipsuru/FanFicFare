@@ -24,12 +24,34 @@ try:
 except NameError:
     pass # load_translations() added in calibre 1.9
 
+from io import StringIO
+import cProfile, pstats
+from pstats import SortKey
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(*args, **kwargs)
+            profile.disable()
+            return result
+        finally:
+            # profile.print_stats()
+            s = StringIO()
+            sortby = SortKey.CUMULATIVE
+            ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
+            ps.print_stats(20)
+            print(s.getvalue())
+    return profiled_func
+
+
 # ------------------------------------------------------------------------------
 #
 #              Functions to perform downloads using worker jobs
 #
 # ------------------------------------------------------------------------------
 
+@do_cprofile
 def do_download_worker_single(site,
                               book_list,
                               options,

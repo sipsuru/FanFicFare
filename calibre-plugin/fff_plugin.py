@@ -10,27 +10,6 @@ __docformat__ = 'restructuredtext en'
 import fanficfare.six as six
 from fanficfare.six import ensure_text, string_types, text_type as unicode
 
-# from io import StringIO
-# import cProfile, pstats
-# from pstats import SortKey
-
-# def do_cprofile(func):
-#     def profiled_func(*args, **kwargs):
-#         profile = cProfile.Profile()
-#         try:
-#             profile.enable()
-#             result = func(*args, **kwargs)
-#             profile.disable()
-#             return result
-#         finally:
-#             # profile.print_stats()
-#             s = StringIO()
-#             sortby = SortKey.CUMULATIVE
-#             ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
-#             ps.print_stats(20)
-#             print(s.getvalue())
-#     return profiled_func
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -90,6 +69,8 @@ from fanficfare.epubutils import (
 from fanficfare.geturls import (
     get_urls_from_page, get_urls_from_text,get_urls_from_imap,
     get_urls_from_mime)
+
+from fanficfare.fff_profile import do_cprofile
 
 from calibre_plugins.fanficfare_plugin.fff_util import (
     get_fff_adapter, get_fff_config, get_fff_personalini,
@@ -1304,7 +1285,7 @@ class FanFicFarePlugin(InterfaceAction):
         # let other exceptions percolate up.
         return adapter.getStoryMetadataOnly(get_cover=False)
 
-    # @do_cprofile
+    @do_cprofile
     def prep_download_loop(self,book,
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
@@ -1900,7 +1881,7 @@ class FanFicFarePlugin(InterfaceAction):
         else:
             return None
 
-    # @do_cprofile
+    @do_cprofile
     def update_books_loop(self,book,db=None,
                           options={'fileform':'epub',
                                    'collision':ADDNEW,
