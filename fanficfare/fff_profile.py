@@ -13,23 +13,31 @@
 # limitations under the License.
 #
 
-from io import StringIO
-import cProfile, pstats
-from pstats import SortKey
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        profile = cProfile.Profile()
-        try:
-            profile.enable()
-            result = func(*args, **kwargs)
-            profile.disable()
-            return result
-        finally:
-            # profile.print_stats()
-            s = StringIO()
-            sortby = SortKey.CUMULATIVE
-            ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
-            ps.print_stats(20)
-            print(s.getvalue())
-    return profiled_func
-
+## not compatibly with py2 SortKey not available.
+import sys
+if sys.version_info >= (2, 9):
+    from io import StringIO
+    import cProfile, pstats
+    from pstats import SortKey
+    def do_cprofile(func):
+        def profiled_func(*args, **kwargs):
+            profile = cProfile.Profile()
+            try:
+                profile.enable()
+                result = func(*args, **kwargs)
+                profile.disable()
+                return result
+            finally:
+                # profile.print_stats()
+                s = StringIO()
+                sortby = SortKey.CUMULATIVE
+                ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
+                ps.print_stats(20)
+                print(s.getvalue())
+        return profiled_func
+else:
+    ## no-nothing for py2
+    def do_cprofile(func):
+        def profiled_func(*args, **kwargs):
+            return func(*args, **kwargs)
+        return profiled_func
