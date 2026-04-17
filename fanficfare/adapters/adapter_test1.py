@@ -491,6 +491,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
             desc = '<div><p>The Great Test Series of '+self.getSiteDomain()+'!</p><p>Now with two lines!</p></div>'
         return {'name':'The Great Test',
                 'desc':desc,
+                'status':'AStatus',
                 'urllist':['http://'+self.getSiteDomain()+'?sid=1',
                            'http://'+self.getSiteDomain()+'?sid=2',
                            'http://'+self.getSiteDomain()+'?sid=3',

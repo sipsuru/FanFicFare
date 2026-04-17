@@ -3201,7 +3201,9 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
         s = options.get('frompage',{}).get('status','')
         if s:
             book['all_metadata']['status'] = s
-            book['tags'].append(s)
+            ## status into tags only if in include_subject_tags
+            if 'status' in configuration.getConfigList('include_subject_tags'):
+                book['tags'].append(s)
         book['tags'].extend(configuration.getConfigList('anthology_tags'))
         book['all_metadata']['anthology'] = "true"
 
