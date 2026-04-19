@@ -395,7 +395,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
                                 ## Collect tags from series/story page if tags_from_chapters is enabled
                                 if self.getConfig("tags_from_chapters"):
-                                    self.story.extendList('eroticatags', [ stripHTML(t['tag']).title() for t in chap['tags'] ])
+                                    self.story.extendList('eroticatags', [ unicode(t['tag']).title() for t in chap['tags'] ])
 
 
         except Exception as e:
