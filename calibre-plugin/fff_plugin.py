@@ -2632,7 +2632,6 @@ class FanFicFarePlugin(InterfaceAction):
                 db.new_api.set_link_for_authors(author_id_to_link_map)
 
         # set series link if found.
-        logger.debug("has link_map:%s"%(hasattr(db.new_api,'set_link_map')))
         ## new_api.set_link_map added in Calibre v6.15
         if hasattr(db.new_api,'set_link_map') and \
                 prefs['set_series_url'] and \
@@ -2641,6 +2640,7 @@ class FanFicFarePlugin(InterfaceAction):
             series = book['series']
             if '[' in series: # a few can have a series w/o number
                 series = series[:series.rindex(' [')]
+            logger.debug("Setting series link:%s"%book['all_metadata']['seriesUrl'])
             db.new_api.set_link_map('series',{series:
                                                   book['all_metadata']['seriesUrl']})
 
@@ -3184,6 +3184,7 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
 
             if prefs['setanthologyseries'] and book['title'] == series:
                 book['series'] = series+' [0]'
+                book['all_metadata']['seriesUrl'] = options.get('anthology_url','')
 
             # logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
             if configuration.getConfig('anthology_title_pattern'):
